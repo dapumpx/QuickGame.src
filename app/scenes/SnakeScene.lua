@@ -1,3 +1,4 @@
+local ScoreLayer = require("app.layers.ScoreLayer")
 local SnakeScene = class("SnakeScene", function()
     return display.newScene("SnakeScene")
 end)
@@ -64,6 +65,8 @@ function SnakeScene:ctor()
     self:addSnakeBody()
 
     snakeSchedule = scheduler.scheduleGlobal(handler(self, self.MoveBody), 0.3)
+    
+    self:GameOver()
 end
 
 function SnakeScene:randomApple()
@@ -210,6 +213,9 @@ end
 
 function SnakeScene:GameOver()
     print("Game Over!!!")
+    
+    local scoreLayer = ScoreLayer.new(cc.c4f(255,255,255,100), 200, 100)
+    self:addChild(scoreLayer)
 end
 
 function print_lua_table (lua_table, indent)
