@@ -4,7 +4,7 @@ require("cocos.init")
 require("framework.init")
 
 local MyApp = class("MyApp", cc.mvc.AppBase)
-
+--change there
 function MyApp:ctor()
     MyApp.super.ctor(self)
 end
