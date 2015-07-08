@@ -65,8 +65,6 @@ function SnakeScene:ctor()
     self:addSnakeBody()
 
     snakeSchedule = scheduler.scheduleGlobal(handler(self, self.MoveBody), 0.3)
-    
-    self:GameOver()
 end
 
 function SnakeScene:randomApple()
@@ -115,6 +113,10 @@ function SnakeScene:onPlayButtonClickHandler(event)
     elseif event.target == self.downBtn and self.currDirection ~= FLAG_UP then
         self.flagDirection = FLAG_DOWN
     end
+    
+    self:MoveBody()
+    scheduler.unscheduleGlobal(snakeSchedule)
+    snakeSchedule = scheduler.scheduleGlobal(handler(self, self.MoveBody), 0.3)
 end
 
 function SnakeScene:checkApple()
