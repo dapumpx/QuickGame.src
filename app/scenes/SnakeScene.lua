@@ -16,25 +16,32 @@ function SnakeScene:ctor()
     self.flagDirection = FLAG_LEFT
     self.currDirection = FLAG_LEFT
 
+    self.background = cc.LayerColor:create(cc.c4f(255,255,255,255), display.size.width, display.size.height)
+    self:addChild(self.background)
+    
+    self.background1 = cc.LayerColor:create(cc.c4f(0,0,0,255), display.size.width - 20, display.size.height - 50)
+    self.background1:setPosition(10,0)
+    self:addChild(self.background1)
+    
     local btnLeft = {
         normal = "snake/SNAKE_BTN_LEFT_1.png",
-        --pressed = "snake/SNAKE_BTN_LEFT_1.png",
-        --disabled = "snake/SNAKE_BTN_LEFT_1.png",
+    --pressed = "snake/SNAKE_BTN_LEFT_1.png",
+    --disabled = "snake/SNAKE_BTN_LEFT_1.png",
     }
-    
     self.leftBtn = cc.ui.UIPushButton.new(btnLeft)
         :onButtonClicked(function(event) self:onPlayButtonClickHandler(event) end)
-        :align(display.BOTTOM_CENTER, display.cx - 240, display.bottom + 109)
+        :align(display.BOTTOM_CENTER, display.cx - 230, display.bottom + 100)
         :addTo(self)
     self.leftBtn:setAnchorPoint(0.5, 0.5)
 
     local btnRight = {
         normal = "snake/SNAKE_BTN_RIGHT_1.png"
     }
-
+    
+    
     self.rightBtn = cc.ui.UIPushButton.new(btnRight)
         :onButtonClicked(function(event) self:onPlayButtonClickHandler(event) end)
-        :align(display.BOTTOM_CENTER, display.cx + 240, display.bottom + 109)
+        :align(display.BOTTOM_CENTER, display.cx + 230, display.bottom + 100)
         :addTo(self)
     self.rightBtn:setAnchorPoint(0.5, 0.5)
 
@@ -44,7 +51,7 @@ function SnakeScene:ctor()
 
     self.upBtn = cc.ui.UIPushButton.new(btnUp)
         :onButtonClicked(function(event) self:onPlayButtonClickHandler(event) end)
-        :align(display.BOTTOM_CENTER, display.cx, display.bottom + 164)
+        :align(display.BOTTOM_CENTER, display.cx, display.bottom + 155)
         :addTo(self)
     self.upBtn:setAnchorPoint(0.5, 0.5)
 
@@ -54,9 +61,19 @@ function SnakeScene:ctor()
 
     self.downBtn = cc.ui.UIPushButton.new(btnDown)
         :onButtonClicked(function(event) self:onPlayButtonClickHandler(event) end)
-        :align(display.BOTTOM_CENTER, display.cx, display.bottom + 55)
+        :align(display.BOTTOM_CENTER, display.cx, display.bottom + 50)
         :addTo(self)
     self.downBtn:setAnchorPoint(0.5, 0.5)
+
+    self.txtScore = cc.ui.UILabel.new({
+        UILabelType = cc.ui.UILabel.LABEL_TYPE_TTF,
+        text = "Score: 0",
+        font = "Verdana-Bold",
+        size = 30,
+        color = cc.c4f(0,0,0,255)
+    })
+    self.txtScore:align(display.LEFT_TOP, display.left + 10, display.top - 10)
+    self:addChild(self.txtScore)
 
     self.tblSnake = {}
     self.tblSnakePos = {}
@@ -104,6 +121,7 @@ end
 
 function SnakeScene:onPlayButtonClickHandler(event)
     -- print_lua_table(event)
+    if self.isGameOver then return end
     if event.target == self.leftBtn and self.currDirection ~= FLAG_RIGHT then
         self.flagDirection = FLAG_LEFT
     elseif event.target == self.rightBtn and self.currDirection ~= FLAG_LEFT then
@@ -162,6 +180,9 @@ function SnakeScene:MoveBody()
     
     self.currDirection = self.flagDirection
     
+    local oldLastPos = {x=self.tblSnake[tLen]:getPositionX(), y=self.tblSnake[tLen]:getPositionY()}
+    local oldLastPoint = self.tblSnakePos[self.tblSnake[tLen]]
+
     for i = tLen, 2, -1 do
         self.tblSnake[i]:setPosition(self.tblSnake[i-1]:getPositionX(), self.tblSnake[i-1]:getPositionY())
         self.tblSnakePos[self.tblSnake[i]] = self.tblSnakePos[self.tblSnake[i - 1]]
@@ -180,32 +201,41 @@ function SnakeScene:MoveBody()
         self.tblSnakePos[self.tblSnake[1]] = {self.tblSnakePos[self.tblSnake[1]][1], self.tblSnakePos[self.tblSnake[1]][2] - 1}
     end
 
-    local isGameOver = false
+    self.isGameOver = false
 
     if self.tblSnakePos[self.tblSnake[1]][1] < -15
         or self.tblSnakePos[self.tblSnake[1]][1] > 15
-        or self.tblSnakePos[self.tblSnake[1]][2] > 23
-        or self.tblSnakePos[self.tblSnake[1]][2] < -9
+        or self.tblSnakePos[self.tblSnake[1]][2] > 21
+        or self.tblSnakePos[self.tblSnake[1]][2] < -13
     then
-        isGameOver = true
+        self.isGameOver = true
     end
 
-    if isGameOver ~= true then
+    if self.isGameOver ~= true then
         for i, j in pairs(self.tblSnakePos) do
             for m, n in pairs(self.tblSnakePos) do
                 if i ~= m and j[1] == n[1] and j[2] == n[2] then
-                    isGameOver = true;
+                    self.isGameOver = true;
                     break;
                 end
             end
-            if isGameOver then break end
+            if self.isGameOver then break end
         end
     end
     
-    if isGameOver and snakeSchedule ~= nil then
-        scheduler.unscheduleGlobal(snakeSchedule)
-        snakeSchedule = nil
+    if self.isGameOver then
+        if snakeSchedule ~= nil then
+            scheduler.unscheduleGlobal(snakeSchedule)
+            snakeSchedule = nil
+        end
         self:GameOver()
+
+        for i = 1, tLen - 1, 1 do
+            self.tblSnake[i]:setPosition(self.tblSnake[i+1]:getPositionX(), self.tblSnake[i+1]:getPositionY())
+            self.tblSnakePos[self.tblSnake[i]] = self.tblSnakePos[self.tblSnake[i + 1]]
+        end
+        self.tblSnake[tLen]:setPosition(oldLastPos.x, oldLastPos.y)
+        self.tblSnakePos[self.tblSnake[tLen]] = oldLastPoint
         return
     end
     

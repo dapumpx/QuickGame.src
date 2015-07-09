@@ -18,15 +18,25 @@ end
 function ScoreLayer:createMsgBox()
     local label = cc.ui.UILabel.new({
         UILabelType = cc.ui.UILabel.LABEL_TYPE_TTF,
-        text = "HelloThere",
+        text = "REPLAY",
         font = "Verdana-Bold",
-        size = 20,
+        size = 40,
         color = cc.c4f(0,0,0,100)
     })
     label:pos(self:getContentSize().width * 0.5, self:getContentSize().height * 0.5)
     label:setAnchorPoint(0.5, 0.5)
     
     self:addChild(label)
+
+    label:setTouchEnabled(true)
+    label:addNodeEventListener(
+        cc.NODE_TOUCH_EVENT, 
+        handler(self, self.onTouchBtnClickHandler))
+end
+
+function ScoreLayer:onTouchBtnClickHandler(event)
+    printf("sprite: %s x,y: %0.2f, %0.2f",
+           event.name, event.x, event.y)
 end
 
 return ScoreLayer
