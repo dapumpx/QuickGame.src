@@ -1,3 +1,5 @@
+
+
 local ScoreLayer = class("ScoreLayer", function(color, width, height) 
     return cc.LayerColor:create(color, width, height)
 end)
@@ -13,6 +15,7 @@ function ScoreLayer:ctor(color, width, height)
     self:changeWidthAndHeight(width, height)
     self:setAnchorPoint(0.5, 0.5)
     self:setPosition(display.cx - self:getContentSize().width * 0.5, display.cy)   
+    self.SystemEventManager = require("app.manager.SystemEventManager").new()
 end
 
 function ScoreLayer:createMsgBox()
@@ -35,8 +38,8 @@ function ScoreLayer:createMsgBox()
 end
 
 function ScoreLayer:onTouchBtnClickHandler(event)
-    printf("sprite: %s x,y: %0.2f, %0.2f",
-           event.name, event.x, event.y)
+    local event = cc.EventCustom:new("HelloTest001")
+    eventManager:dispatchEvent(event)
 end
 
 return ScoreLayer

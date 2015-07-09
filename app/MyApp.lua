@@ -4,7 +4,8 @@ require("cocos.init")
 require("framework.init")
 
 local MyApp = class("MyApp", cc.mvc.AppBase)
---change there
+local global = require("app.manager.GlobalManager")
+
 function MyApp:ctor()
     MyApp.super.ctor(self)
 end

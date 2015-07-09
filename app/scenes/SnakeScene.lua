@@ -82,6 +82,16 @@ function SnakeScene:ctor()
     self:addSnakeBody()
 
     snakeSchedule = scheduler.scheduleGlobal(handler(self, self.MoveBody), 0.3)
+
+    local customListenerBg = cc.EventListenerCustom:create("HelloTest001",
+                                handler(self, self.callback))
+    eventManager:addEventListenerWithFixedPriority(customListenerBg, 1)
+    -- eventManager:addEventListener("helloThere", handler(self, self.callback))
+    -- eventManager:dispatchEvent({name="helloThere"})
+end
+
+function SnakeScene:callback()
+    print("done!!!!!!!!!!!!!!!")
 end
 
 function SnakeScene:randomApple()
@@ -248,34 +258,6 @@ function SnakeScene:GameOver()
     
     local scoreLayer = ScoreLayer.new(cc.c4f(255,255,255,100), 200, 100)
     self:addChild(scoreLayer)
-end
-
-function print_lua_table (lua_table, indent)
-    indent = indent or 0
-    for k, v in pairs(lua_table) do
-        if type(k) == "string" then
-            k = string.format("%q", k)
-        end
-        local szSuffix = ""
-        if type(v) == "table" then
-            szSuffix = "{"
-        end
-        local szPrefix = string.rep("    ", indent)
-        formatting = szPrefix.."["..k.."]".." = "..szSuffix
-        if type(v) == "table" then
-            print(formatting)
-            print_lua_table(v, indent + 1)
-            print(szPrefix.."},")
-        else
-            local szValue = ""
-            if type(v) == "string" then
-                szValue = string.format("%q", v)
-            else
-                szValue = tostring(v)
-            end
-            print(formatting..szValue..",")
-        end
-    end
 end
 
 return SnakeScene
