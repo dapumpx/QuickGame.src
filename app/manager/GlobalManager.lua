@@ -1,6 +1,9 @@
 eventManager = cc.Director:getInstance():getEventDispatcher()
 
-strTest = "Hello World!"
+SNAKE_CANDY_TYPE = {
+    TYPE_APPLE = 1,
+    TYPE_SPEED = 2
+}
 
 function print_lua_table (lua_table, indent)
     indent = indent or 0
