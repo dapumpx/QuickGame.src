@@ -1,5 +1,3 @@
-
-
 local ScoreLayer = class("ScoreLayer", function(color, width, height) 
     -- return cc.LayerColor:create(color, width, height)
     return display.newColorLayer(color)
@@ -46,8 +44,9 @@ function ScoreLayer:createMsgBox()
 end
 
 function ScoreLayer:onTouchBtnClickHandler(event)
-    local event = cc.EventCustom:new("HelloTest001")
-    eventManager:dispatchEvent(event)
+    printf("sprite: %s x,y: %0.2f, %0.2f",
+           event.name, event.x, event.y)
+    self:removeFromParent()
 end
 
 return ScoreLayer

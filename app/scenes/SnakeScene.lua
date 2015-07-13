@@ -1,4 +1,6 @@
 local ScoreLayer = require("app.layers.ScoreLayer")
+local SnakeBody = require("app.elements.SnakeBody")
+local SnakeCandy = require("app.elements.SnakeCandy")
 local SnakeScene = class("SnakeScene", function()
     return display.newScene("SnakeScene")
 end)
@@ -98,12 +100,13 @@ function SnakeScene:randomApple()
 --    if table.getn(self.tblApple) > 10 then return end
     if math.random() < 0.7 then return end
     
-    local apple = display.newSprite("snake/SNAKE_APPLE.png")
+    local apple = SnakeCandy.new()
+    apple:setCandyType(SNAKE_CANDY_TYPE.TYPE_APPLE)
     apple:setAnchorPoint(0.5, 0.5)
     local obj = {["apple"]=apple, x=math.random(-15,15), y=math.random(-9, 23)}
     
     for i, v in ipairs(self.tblSnake) do
-        if self.tblSnakePos[v][1] == obj.x and self.tblSnakePos[v][2] == obj.y then
+        if v.pointX == obj.x and v.pointY == obj.y then
             apple = nil
             obj = nil
             break
@@ -149,8 +152,8 @@ end
 
 function SnakeScene:checkApple()
     for i, v in ipairs(self.tblApple) do
-        if self.tblSnakePos[self.tblSnake[1]][1] == v.x
-           and  self.tblSnakePos[self.tblSnake[1]][2] == v.y
+        if self.tblSnake[1].pointX == v.x
+           and  self.tblSnake[1].pointY == v.y
         then
             self:removeChild(v.apple)
             self:addSnakeBody()
@@ -164,19 +167,26 @@ function SnakeScene:addSnakeBody()
 --    if table.getn(self.tblSnake) >= 10 then
 --        return
 --    end
-    local sBody = display.newSprite("snake/SNAKE_BODY.png")
+    -- local sBody = display.newSprite("snake/SNAKE_BODY.png")
+    local sBody = SnakeBody.new()
     self:addChild(sBody)
     if table.getn(self.tblSnake) == 0 then
-        self.tblSnakePos[sBody] = {0, 0}
+        -- self.tblSnakePos[sBody] = {0, 0}
+        sBody:setPoint(0,0)
         sBody:setPosition(display.cx, display.cy)
         sBody:setAnchorPoint(0.5, 0.5)
     else
-        self.tblSnakePos[sBody] = self.lastPoint
+        -- self.tblSnakePos[sBody] = self.lastPoint
+        sBody:setFrontBody(self.tblSnake[table.getn(self.tblSnake)])
+        self.tblSnake[table.getn(self.tblSnake)]:setBehindBody(sBody)
+        sBody:setPoint(self.lastPoint.x, self.lastPoint.y)
         sBody:setPosition(self.lastPos.x, self.lastPos.y)
         sBody:setAnchorPoint(0.5, 0.5)
     end
 
     table.insert(self.tblSnake, sBody)
+
+    self.txtScore:setString("Score: "..table.getn(self.tblSnake))
 end
 
 function SnakeScene:MoveBody()
@@ -186,45 +196,51 @@ function SnakeScene:MoveBody()
     end
     
     self.lastPos = {x=self.tblSnake[tLen]:getPositionX(), y=self.tblSnake[tLen]:getPositionY()}
-    self.lastPoint = self.tblSnakePos[self.tblSnake[tLen]]
+    self.lastPoint = {x = self.tblSnake[tLen].pointX, y = self.tblSnake[tLen].pointY}
     
     self.currDirection = self.flagDirection
     
     local oldLastPos = {x=self.tblSnake[tLen]:getPositionX(), y=self.tblSnake[tLen]:getPositionY()}
-    local oldLastPoint = self.tblSnakePos[self.tblSnake[tLen]]
+    local oldLastPoint = {x=self.tblSnake[tLen].pointX, y=self.tblSnake[tLen].pointY}
 
     for i = tLen, 2, -1 do
-        self.tblSnake[i]:setPosition(self.tblSnake[i-1]:getPositionX(), self.tblSnake[i-1]:getPositionY())
-        self.tblSnakePos[self.tblSnake[i]] = self.tblSnakePos[self.tblSnake[i - 1]]
+        -- self.tblSnake[i]:setPosition(self.tblSnake[i-1]:getPositionX(), self.tblSnake[i-1]:getPositionY())
+        -- self.tblSnakePos[self.tblSnake[i]] = self.tblSnakePos[self.tblSnake[i - 1]]
+        self.tblSnake[i]:move(true)
     end
+    local px, py = self.tblSnake[1]:getPoint()
     if self.flagDirection == FLAG_LEFT then
         self.tblSnake[1]:setPositionX(self.tblSnake[1]:getPositionX() - 20)
-        self.tblSnakePos[self.tblSnake[1]] = {self.tblSnakePos[self.tblSnake[1]][1] - 1, self.tblSnakePos[self.tblSnake[1]][2]}
+        -- self.tblSnakePos[self.tblSnake[1]] = {self.tblSnakePos[self.tblSnake[1]][1] - 1, self.tblSnakePos[self.tblSnake[1]][2]}
+        self.tblSnake[1]:setPoint(px - 1, py)
     elseif self.flagDirection == FLAG_RIGHT then
         self.tblSnake[1]:setPositionX(self.tblSnake[1]:getPositionX() + 20)
-        self.tblSnakePos[self.tblSnake[1]] = {self.tblSnakePos[self.tblSnake[1]][1] + 1, self.tblSnakePos[self.tblSnake[1]][2]}
+        -- self.tblSnakePos[self.tblSnake[1]] = {self.tblSnakePos[self.tblSnake[1]][1] + 1, self.tblSnakePos[self.tblSnake[1]][2]}
+        self.tblSnake[1]:setPoint(px + 1, py)
     elseif self.flagDirection == FLAG_UP then
         self.tblSnake[1]:setPositionY(self.tblSnake[1]:getPositionY() + 20)
-        self.tblSnakePos[self.tblSnake[1]] = {self.tblSnakePos[self.tblSnake[1]][1], self.tblSnakePos[self.tblSnake[1]][2] + 1}
+        -- self.tblSnakePos[self.tblSnake[1]] = {self.tblSnakePos[self.tblSnake[1]][1], self.tblSnakePos[self.tblSnake[1]][2] + 1}
+        self.tblSnake[1]:setPoint(px, py + 1)
     elseif self.flagDirection == FLAG_DOWN then
         self.tblSnake[1]:setPositionY(self.tblSnake[1]:getPositionY() - 20)
-        self.tblSnakePos[self.tblSnake[1]] = {self.tblSnakePos[self.tblSnake[1]][1], self.tblSnakePos[self.tblSnake[1]][2] - 1}
+        -- self.tblSnakePos[self.tblSnake[1]] = {self.tblSnakePos[self.tblSnake[1]][1], self.tblSnakePos[self.tblSnake[1]][2] - 1}
+        self.tblSnake[1]:setPoint(px, py -1)
     end
 
-    self.isGameOver = false
+    self.isGameOver = self.tblSnake[1]:checkIsOut()
 
-    if self.tblSnakePos[self.tblSnake[1]][1] < -15
-        or self.tblSnakePos[self.tblSnake[1]][1] > 15
-        or self.tblSnakePos[self.tblSnake[1]][2] > 21
-        or self.tblSnakePos[self.tblSnake[1]][2] < -13
-    then
-        self.isGameOver = true
-    end
+    -- if self.tblSnakePos[self.tblSnake[1]][1] < -15
+    --     or self.tblSnakePos[self.tblSnake[1]][1] > 15
+    --     or self.tblSnakePos[self.tblSnake[1]][2] > 21
+    --     or self.tblSnakePos[self.tblSnake[1]][2] < -13
+    -- then
+    --     self.isGameOver = true
+    -- end
 
     if self.isGameOver ~= true then
-        for i, j in pairs(self.tblSnakePos) do
-            for m, n in pairs(self.tblSnakePos) do
-                if i ~= m and j[1] == n[1] and j[2] == n[2] then
+        for i, j in pairs(self.tblSnake) do
+            for m, n in pairs(self.tblSnake) do
+                if i ~= m and j.pointX == n.pointX and j.pointY == n.pointY then
                     self.isGameOver = true;
                     break;
                 end
@@ -241,11 +257,13 @@ function SnakeScene:MoveBody()
         self:GameOver()
 
         for i = 1, tLen - 1, 1 do
-            self.tblSnake[i]:setPosition(self.tblSnake[i+1]:getPositionX(), self.tblSnake[i+1]:getPositionY())
-            self.tblSnakePos[self.tblSnake[i]] = self.tblSnakePos[self.tblSnake[i + 1]]
+            self.tblSnake[i]:move(false)
+            -- self.tblSnake[i]:setPosition(self.tblSnake[i+1]:getPositionX(), self.tblSnake[i+1]:getPositionY())
+            -- self.tblSnakePos[self.tblSnake[i]] = self.tblSnakePos[self.tblSnake[i + 1]]
         end
         self.tblSnake[tLen]:setPosition(oldLastPos.x, oldLastPos.y)
-        self.tblSnakePos[self.tblSnake[tLen]] = oldLastPoint
+        -- self.tblSnakePos[self.tblSnake[tLen]] = oldLastPoint
+        self.tblSnake[tLen]:setPoint(oldLastPoint.x, oldLastPoint.y)
         return
     end
     
