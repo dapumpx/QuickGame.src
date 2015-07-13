@@ -1,7 +1,8 @@
 
 
 local ScoreLayer = class("ScoreLayer", function(color, width, height) 
-    return cc.LayerColor:create(color, width, height)
+    -- return cc.LayerColor:create(color, width, height)
+    return display.newColorLayer(color)
 end)
 --local ScoreLayer = class("ScoreLayer", cc.LayerColor)
 --function ScoreLayer:create(dtype, text, callbackfunc) 
@@ -11,11 +12,18 @@ end)
 
 function ScoreLayer:ctor(color, width, height)
     self:createMsgBox()
-    self:setColor(color)
-    self:changeWidthAndHeight(width, height)
-    self:setAnchorPoint(0.5, 0.5)
-    self:setPosition(display.cx - self:getContentSize().width * 0.5, display.cy)   
+    -- self:setColor(color)
+    self:setContentSize(width, height)
+    -- self:setAnchorPoint(0.5, 0.5)
+    self:setPosition(display.cx - 100, display.cy - 50)   
     self.SystemEventManager = require("app.manager.SystemEventManager").new()
+
+   self:addNodeEventListener(cc.NODE_TOUCH_EVENT, function(event)
+        print("hhhhhhhhhhhhhhh")
+    end)
+
+    self:setTouchEnabled(true)
+    self:setTouchSwallowEnabled(false)
 end
 
 function ScoreLayer:createMsgBox()
@@ -30,11 +38,11 @@ function ScoreLayer:createMsgBox()
     label:setAnchorPoint(0.5, 0.5)
     
     self:addChild(label)
-
-    label:setTouchEnabled(true)
-    label:addNodeEventListener(
-        cc.NODE_TOUCH_EVENT, 
-        handler(self, self.onTouchBtnClickHandler))
+    -- label:setTouchEnabled(false)
+    -- label:setTouchEnabled(true)
+    -- label:addNodeEventListener(
+    --     cc.NODE_TOUCH_EVENT, 
+    --     handler(self, self.onTouchBtnClickHandler))
 end
 
 function ScoreLayer:onTouchBtnClickHandler(event)

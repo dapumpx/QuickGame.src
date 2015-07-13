@@ -256,7 +256,7 @@ end
 function SnakeScene:GameOver()
     print("Game Over!!!")
     
-    local scoreLayer = ScoreLayer.new(cc.c4f(255,255,255,100), 200, 100)
+    local scoreLayer = ScoreLayer.new(cc.c4f(255,255,0,255), 200, 100)
     self:addChild(scoreLayer)
 end
 
